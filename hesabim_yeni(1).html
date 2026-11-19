@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hesabım</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:20px;background:#151515;color:#fff;font-family:Arial,sans-serif}
+.wrap{max-width:440px;margin:22px auto}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.logo{font-size:27px;font-weight:900;color:#ff7a18}
+.pill{font-size:11px;border:1px solid #75401d;color:#ffc18f;border-radius:20px;padding:7px 10px}
+.card{background:#242424;border:1px solid #3a3a3a;border-radius:17px;padding:20px;margin-bottom:15px}
+.label{font-size:13px;color:#aaa}
+.amount{font-size:35px;font-weight:800;margin:9px 0;color:#fff}
+.amount span{font-size:17px;color:#ff8a35}
+h3{font-size:17px;margin:0 0 14px}
+input,textarea{width:100%;padding:13px;border-radius:10px;border:1px solid #4a4a4a;background:#171717;color:#fff;font-size:14px;margin:7px 0 12px}
+textarea{min-height:90px;resize:vertical}
+button{width:100%;padding:14px;border:0;border-radius:11px;background:#ff7a18;color:#171717;font-size:15px;font-weight:800;cursor:pointer}
+button.alt{background:#383838;color:#fff;margin-top:9px}
+.status{font-size:12px;color:#ffc18f;min-height:16px;margin-top:8px}
+.help{font-size:12px;color:#aaa;line-height:1.5}
+footer{text-align:center;color:#888;font-size:11px;margin:20px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div class="logo">HESABIM</div><div class="pill">ŞƏXSİ HESAB</div></header>
+
+<section class="card">
+  <div class="label">Balans</div>
+  <div class="amount"><span id="balance">0.00</span> <span>AZN</span></div>
+</section>
+
+<section class="card">
+  <h3>Bonus kodu</h3>
+  <input id="bonusCode" type="text" placeholder="Bonus kodunu daxil edin">
+  <button onclick="applyBonus()">Təsdiqlə</button>
+  <div id="bonusStatus" class="status" aria-live="polite"></div>
+</section>
+
+<section class="card">
+  <h3>Balansı artır</h3>
+  <p class="help">Artırmaq istədiyiniz məbləği daxil edin. Müraciət WhatsApp-la administratora göndəriləcək.</p>
+  <input id="addAmount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Məbləğ (AZN)">
+  <button onclick="requestBalance()">Adminlə əlaqə saxla</button>
+  <div id="addStatus" class="status" aria-live="polite"></div>
+</section>
+
+<footer>Şəxsi hesab</footer>
+</div>
+<script>
+const BALANCE_KEY='account_display_balance_v2';
+const BONUS_KEY='account_bonus_misli3_used_v2';
+let balance=Number(localStorage.getItem(BALANCE_KEY)||0);
+document.getElementById('balance').textContent=balance.toFixed(2);
+
+function applyBonus(){
+  const code=document.getElementById('bonusCode').value.trim().toLocaleUpperCase('az');
+  const status=document.getElementById('bonusStatus');
+  if(localStorage.getItem(BONUS_KEY)==='yes'){
+    status.textContent='Kod artıq istifadə olunub.';
+    return;
+  }
+  if(code!=='MİSLİ3' && code!=='MISLI3'){
+    status.textContent='Kod yanlışdır.';
+    return;
+  }
+  balance+=3;
+  localStorage.setItem(BALANCE_KEY,String(balance));
+  localStorage.setItem(BONUS_KEY,'yes');
+  document.getElementById('balance').textContent=balance.toFixed(2);
+  status.textContent='+3.00 AZN əlavə edildi.';
+}
+function requestBalance(){
+  const input=document.getElementById('addAmount');
+  const status=document.getElementById('addStatus');
+  const amount=Number(input.value);
+  if(!Number.isFinite(amount) || amount<=0){
+    status.textContent='Zəhmət olmasa, düzgün məbləğ daxil edin.';
+    return;
+  }
+  const formatted=amount.toFixed(2);
+  const msg='Salam, balansıma '+formatted+' AZN artırmaq istəyirəm.';
+  window.open('https://wa.me/994505771978?text='+encodeURIComponent(msg),'_blank');
+}
+</script>
+</body>
+</html>
